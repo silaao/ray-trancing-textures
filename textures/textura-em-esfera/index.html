@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textura em Esfera</title>
+
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+
+  <body>
+    <script type="module">
+      // Importação
+      import * as THREE from 'https://unpkg.com/three@0.123.0/build/three.module.js';
+      import { OrbitControls } from 'https://unpkg.com/three@0.123.0/examples/jsm/controls/OrbitControls.js';
+
+      // Meu javascript
+      let scene, camera, renderer;
+
+      function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 1, 5000);
+        camera.position.set(0, 400, 1000);
+
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        let controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = false;
+
+        let urls = [
+          'posx.jpg', 'negx.jpg',
+          'posy.jpg', 'negy.jpg',
+          'posz.jpg', 'negz.jpg',
+        ];
+
+        scene.background = new THREE.CubeTextureLoader().setPath('asset/').load(urls);
+
+        let material = new THREE.MeshBasicMaterial( {
+          envMap: scene.background,
+					combine: THREE.MultiplyOperation,
+					reflectivity: 1
+				});
+
+        let sphere = new THREE.Mesh( new THREE.IcosahedronBufferGeometry(300, 10), material );
+        scene.add( sphere );
+
+        document.addEventListener( 'wheel', onDocumentMouseWheel, false );
+
+        render();
+      }
+
+      function onDocumentMouseWheel( event ) {
+
+        const fov = camera.fov + event.deltaY * 0.05;
+
+        camera.fov = THREE.MathUtils.clamp( fov, 10, 75 );
+
+        camera.updateProjectionMatrix();
+
+      }
+
+      function render() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
